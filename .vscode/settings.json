@@ -1,0 +1,7 @@
+{
+    "editor.codeActionsOnSave": {
+        "source.fixAll.ts": "explicit",
+        "source.organizeImports": "explicit"
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
