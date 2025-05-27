@@ -3,7 +3,7 @@ module.exports = {
     {
       rules: {
         ticketPattern: ({ header }) => {
-          const pattern = /^\[(TICKET-\d+|VIP)\]\s+(feat|fix|docs|chore|refactor|ci|test|revert|perf|build):\s+(.*)$/;
+          const pattern = /^\[(JOB-\d+|VIP)\]\s+(feat|fix|docs|chore|refactor|ci|test|revert|perf|build):\s+(.*)$/;
           const matches = pattern.test(header);
           return [
             matches,
