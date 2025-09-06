@@ -12,7 +12,7 @@ export class TextService {
 
   async getAll(query: GetAllTextsDto) {
     const { page = 1, limit = 10, language } = query;
-    const skip = (page - 1) * Math.min(limit, 100); // Max 100 items per page
+    const skip = (page - 1) * Math.min(limit, 100);
     const take = Math.min(limit, 100);
 
     const where = language ? { language } : {};

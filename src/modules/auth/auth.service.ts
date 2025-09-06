@@ -9,6 +9,7 @@ import { generateVerificationCode } from '#/shared/utils/generate-verification-c
 import { comparePassword, hashPassword } from '#/shared/utils/hashing.util';
 import { JWTPayloadForUser, UserRole } from '#/modules/auth/types';
 import { ConfigService } from '@nestjs/config';
+import { UserStatus } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +25,7 @@ export class AuthService {
     logger.info('Registration attempt', { email: registerData.email });
 
     const existingUser = await this.databaseService.user.findUnique({
-      where: { email: registerData.email },
+      where: { email: registerData.email, status: UserStatus.ACTIVE },
     });
 
     if (existingUser) {
@@ -59,6 +60,10 @@ export class AuthService {
   }
 
   async verifyOtp(email: string, otp: string) {
+
+    await this.cleanupExpiredRegistrations();
+
+
     const user = await this.databaseService.user.findUnique({
       where: { email },
       include: { mails: true },
@@ -157,4 +162,63 @@ export class AuthService {
       expiresIn: expiresIn || this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
     });
   }
+
+  private async cleanupExpiredRegistrations() {
+    try {
+      const now = new Date();
+
+      const expiredUsers = await this.databaseService.user.findMany({
+        where: {
+          status: 'IN_REGISTRATION',
+        },
+        include: {
+          mails: {
+            orderBy: {
+              createdAt: 'desc',
+            },
+          },
+        },
+      });
+
+      const usersToDelete = expiredUsers.filter(user => {
+        if (user.mails.length === 0) {
+          // No OTP sent, delete user (shouldn't happen in normal flow)
+          return true;
+        }
+
+        const latestMail = user.mails[0];
+
+
+        return latestMail!.expiresAt < now && latestMail!.status === 'PENDING';
+      });
+
+      if (usersToDelete.length > 0) {
+        const userIds = usersToDelete.map(user => user.id);
+
+        // Delete associated mail records first
+        await this.databaseService.mail.deleteMany({
+          where: {
+            userId: {
+              in: userIds,
+            },
+          },
+        });
+
+        // Delete users
+        const deletedCount = await this.databaseService.user.deleteMany({
+          where: {
+            id: {
+              in: userIds,
+            },
+          },
+        });
+
+        logger.info(`Cleaned up ${deletedCount.count} expired registrations`);
+      }
+    } catch (error) {
+      logger.error('Error cleaning up expired registrations', error);
+      // Don't throw error to avoid breaking the main flow
+    }
+  }
 }
+
