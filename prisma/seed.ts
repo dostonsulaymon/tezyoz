@@ -4,7 +4,6 @@ import { hashPassword } from '../src/shared/utils/hashing.util';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Seed game modes
   const timeModes = [15, 30, 60, 120, 180, 300].map((seconds) => ({
     type: GameModeType.BY_TIME,
     value: seconds,

@@ -5,6 +5,7 @@ import { validateEnv } from './shared/configs/env.config';
 import { AuthModule } from '#/modules/auth/auth.module';
 import { MailModule } from '#/modules/mail/mail.module';
 import { AppController } from '#/app.controller';
+import { TextModule } from '#/modules/text/text.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AppController } from '#/app.controller';
     DatabaseModule,
     AuthModule,
     MailModule,
+    TextModule,
   ],
 
   controllers: [AppController],
