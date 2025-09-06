@@ -1,16 +1,24 @@
 import { Injectable, ConflictException, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { RegisterDto } from '#/modules/auth/dto/register.dto';
 import { DatabaseService } from '#/modules/database/database.service';
+import { JwtService } from '@nestjs/jwt';
 import logger from '#/shared/utils/logger';
 import { MailService } from '#/modules/mail/mail.service';
 import { LoginDto } from '#/modules/auth/dto/login.dto';
+import { generateVerificationCode } from '#/shared/utils/generate-verification-code.util';
+import { comparePassword, hashPassword } from '#/shared/utils/hashing.util';
+import { JWTPayloadForUser, UserRole } from '#/modules/auth/types';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly mailService: MailService,
-  ) {}
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
+  ) {
+  }
 
   async register(registerData: RegisterDto) {
     logger.info('Registration attempt', { email: registerData.email });
@@ -23,15 +31,17 @@ export class AuthService {
       throw new ConflictException('User with this email already exists');
     }
 
+    const hashedPassword = await hashPassword(registerData.password);
+
     const user = await this.databaseService.user.create({
       data: {
         email: registerData.email,
-        password: registerData.password, // hash this in real life!
+        password: hashedPassword,
         status: 'IN_REGISTRATION',
       },
     });
 
-    const otp = await generateOtp();
+    const otp = generateVerificationCode();
 
     await this.databaseService.mail.create({
       data: {
@@ -47,7 +57,7 @@ export class AuthService {
     return { message: 'OTP sent to email' };
   }
 
-  async confirmOtp(email: string, otp: string) {
+  async verifyOtp(email: string, otp: string) {
     const user = await this.databaseService.user.findUnique({
       where: { email },
       include: { mails: true },
@@ -72,12 +82,18 @@ export class AuthService {
       data: { status: 'VERIFIED', usedAt: new Date() },
     });
 
-    await this.databaseService.user.update({
+    const newUser = await this.databaseService.user.update({
       where: { id: user.id },
       data: { status: 'ACTIVE' },
     });
 
-    return { message: 'User verified successfully' };
+    const accessToken = await this.getAccessToken({ userId: newUser.id, role: UserRole.User });
+    const refreshToken = await this.getRefreshToken({ userId: newUser.id, role: UserRole.User });
+
+    return {
+      message: 'User verified successfully',
+      data: { accessToken, refreshToken },
+    };
   }
 
   async login(loginData: LoginDto) {
@@ -91,28 +107,38 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials or user not active');
     }
 
-    const isPasswordValid = await this.validatePassword(loginData.password, user.password!);
+    const isPasswordValid = await comparePassword(loginData.password, user.password!);
+
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const accessToken = 'mocked_jwt_token_here';
+    const accessToken = await this.getAccessToken({ userId: user.id, role: UserRole.User });
+    const refreshToken = await this.getRefreshToken({ userId: user.id, role: UserRole.User });
+
 
     return {
       message: 'Login successful',
-      access_token: accessToken,
-      user: {
-        id: user.id,
-        email: user.email,
-      },
+      data: { accessToken, refreshToken },
     };
   }
 
-  private async validatePassword(password: string, hash: string): Promise<boolean> {
-    return password === hash;
-  }
-}
+  async getAccessToken(user: JWTPayloadForUser, expiresIn?: string) {
+    const payload = { userId: user.userId, role: user.role };
 
-async function generateOtp() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+    if (expiresIn) {
+      return await this.jwtService.signAsync(payload, { expiresIn });
+    }
+
+    return await this.jwtService.signAsync(payload);
+  }
+
+  async getRefreshToken(user: JWTPayloadForUser, expiresIn?: string) {
+    const payload = { userId: user.userId, role: user.role };
+
+    return await this.jwtService.signAsync(payload, {
+      secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
+      expiresIn: expiresIn || this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
+    });
+  }
 }
