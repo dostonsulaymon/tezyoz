@@ -17,7 +17,7 @@ export class UserController {
   }
 
   @Delete('email')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt-access'), RolesGuard)
   @Roles(UserRole.Admin)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Delete user by email (Admin only)' })
@@ -52,7 +52,7 @@ export class UserController {
   }
 
   @Delete('id/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt-access'), RolesGuard)
   @Roles(UserRole.Admin)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Delete user by ID (Admin only)' })

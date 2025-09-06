@@ -167,7 +167,7 @@ export class AuthService {
   }
 
   async getAccessToken(user: JWTPayloadForUser, expiresIn?: string) {
-    const payload = { userId: user.userId, role: user.role };
+    const payload = { userId: user.userId, role: user.role, email: user.email };
 
     if (expiresIn) {
       return await this.jwtService.signAsync(payload, { expiresIn });
@@ -177,7 +177,7 @@ export class AuthService {
   }
 
   async getRefreshToken(user: JWTPayloadForUser, expiresIn?: string) {
-    const payload = { userId: user.userId, role: user.role };
+    const payload = { userId: user.userId, role: user.role, email: user.email };
 
     return await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
