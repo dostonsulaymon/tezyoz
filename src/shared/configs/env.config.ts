@@ -4,6 +4,8 @@ const envConfigSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']),
   PORT: z.coerce.number().int().positive(),
   DATABASE_URL: z.string().url(),
+  SMTP_FROM: z.string(),
+  SMTP_KEY: z.string(),
 });
 
 export type EnvConfig = z.infer<typeof envConfigSchema>;
