@@ -16,6 +16,10 @@ async function bootstrap() {
 
   const httpAdapter = app.get(HttpAdapterHost);
 
+  app.enableCors({
+    origin: '*',
+  });
+  
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
   app.useGlobalInterceptors(new LoggingInterceptor(), new ResponseInterceptor());
 

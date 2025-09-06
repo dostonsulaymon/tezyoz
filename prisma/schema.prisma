@@ -16,6 +16,7 @@ model User {
   password  String?
 
   status UserStatus @default(IN_REGISTRATION)
+  role   UserRole   @default(USER)
 
   mails Mail[]
 
@@ -49,9 +50,14 @@ enum MailStatus {
   VERIFIED
 }
 
+enum UserRole {
+  ADMIN
+  USER
+}
+
 enum UserStatus {
-  IN_REGISTRATION // User created, waiting for OTP/email verification
-  ACTIVE // Fully registered and verified
-  SUSPENDED // Temporarily blocked
-  DELETED // Soft deleted or removed
+  IN_REGISTRATION
+  ACTIVE
+  SUSPENDED
+  DELETED
 }
