@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTextDto } from '#/modules/text/dto/create-text.dto';
+import { CreateTextDto } from '#/modules/text/dto/request/create-text.dto';
 
 @Injectable()
 export class TextService {

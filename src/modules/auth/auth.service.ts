@@ -38,6 +38,7 @@ export class AuthService {
         email: registerData.email,
         password: hashedPassword,
         status: 'IN_REGISTRATION',
+        role: 'USER',
       },
     });
 
@@ -87,12 +88,14 @@ export class AuthService {
       data: { status: 'ACTIVE' },
     });
 
-    const accessToken = await this.getAccessToken({ userId: newUser.id, role: UserRole.User });
-    const refreshToken = await this.getRefreshToken({ userId: newUser.id, role: UserRole.User });
+    const userRole = this.mapPrismaRoleToEnumRole(newUser.role);
+    const accessToken = await this.getAccessToken({ userId: newUser.id, role: userRole });
+    const refreshToken = await this.getRefreshToken({ userId: newUser.id, role: userRole });
 
     return {
       message: 'User verified successfully',
-      data: { accessToken, refreshToken },
+      accessToken,
+      refreshToken,
     };
   }
 
@@ -113,14 +116,27 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const accessToken = await this.getAccessToken({ userId: user.id, role: UserRole.User });
-    const refreshToken = await this.getRefreshToken({ userId: user.id, role: UserRole.User });
-
+    // FIX: Use the actual user role from database instead of hardcoding
+    const userRole = this.mapPrismaRoleToEnumRole(user.role);
+    const accessToken = await this.getAccessToken({ userId: user.id, role: userRole });
+    const refreshToken = await this.getRefreshToken({ userId: user.id, role: userRole });
 
     return {
       message: 'Login successful',
-      data: { accessToken, refreshToken },
+      accessToken,
+      refreshToken,
     };
+  }
+
+  private mapPrismaRoleToEnumRole(prismaRole: string): UserRole {
+    switch (prismaRole) {
+      case 'ADMIN':
+        return UserRole.Admin;
+      case 'USER':
+        return UserRole.User;
+      default:
+        return UserRole.User;
+    }
   }
 
   async getAccessToken(user: JWTPayloadForUser, expiresIn?: string) {

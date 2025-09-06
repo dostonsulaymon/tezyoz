@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class LoginDto {
   @ApiProperty({
     description: 'User email address',
-    example: 'user@example.com',
+    example: 'admin@tezyoz.com',
     format: 'email'
   })
   @IsEmail({}, { message: 'Please provide a valid email address' })
@@ -12,7 +12,7 @@ export class LoginDto {
 
   @ApiProperty({
     description: 'User password',
-    example: 'password123',
+    example: 'iamsure',
     type: 'string'
   })
   @IsNotEmpty({ message: 'Password is required' })
