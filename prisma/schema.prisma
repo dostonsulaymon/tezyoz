@@ -15,7 +15,9 @@ model User {
   username  String?
   password  String?
 
-  mails Mail[] // Relation to Mail
+  status UserStatus @default(IN_REGISTRATION)
+
+  mails Mail[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -45,4 +47,11 @@ enum MailStatus {
   FAILED
   EXPIRED
   VERIFIED
+}
+
+enum UserStatus {
+  IN_REGISTRATION // User created, waiting for OTP/email verification
+  ACTIVE // Fully registered and verified
+  SUSPENDED // Temporarily blocked
+  DELETED // Soft deleted or removed
 }

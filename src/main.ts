@@ -7,8 +7,8 @@ import { AppModule } from './app.module';
 import { ValidationConfig } from './shared/configs/validation.config';
 import { AllExceptionsFilter } from './shared/filters/all-exceptions.filter';
 import { LoggingInterceptor } from './shared/interceptors/logging.interceptor';
+import { ResponseInterceptor } from './shared/interceptors/response.interceptor';
 import { GlobalLogger } from './shared/services/global-logger.service';
-
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     rawBody: true,
@@ -17,7 +17,7 @@ async function bootstrap() {
   const httpAdapter = app.get(HttpAdapterHost);
 
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
-  app.useGlobalInterceptors(new LoggingInterceptor());
+  app.useGlobalInterceptors(new LoggingInterceptor(), new ResponseInterceptor());
 
   const configService = app.get(ConfigService);
 

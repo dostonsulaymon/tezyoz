@@ -1,7 +1,7 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { Request } from 'express';
-import { DateTime } from 'luxon';
+import { ErrorResponse } from '../dto/base-response.dto';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -14,19 +14,23 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     const httpStatus = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
     const message = exception instanceof HttpException ? this.getExceptionMessage(exception) : 'Internal Server Error';
-    const name = exception instanceof HttpException ? exception.name : 'Error';
-    const requestId = ctx.getRequest<Request>().headers['x-request-id'];
+    const errorType = exception instanceof HttpException ? exception.name : 'InternalServerError';
+    
+    // Extract validation errors if present
+    let details: string[] | undefined;
+    if (exception instanceof HttpException) {
+      const response = exception.getResponse();
+      if (typeof response === 'object' && 'message' in response && Array.isArray(response.message)) {
+        details = response.message;
+      }
+    }
 
-    const responseBody = {
-      error: {
-        status: httpStatus,
-        name,
-        message,
-      },
-      timestamp: DateTime.now().toISO(),
-      path: httpAdapter.getRequestUrl(ctx.getRequest()),
-      requestId,
-    };
+    const responseBody = new ErrorResponse(
+      httpStatus,
+      Array.isArray(message) ? message[0] : message,
+      errorType,
+      details
+    );
 
     httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
   }
