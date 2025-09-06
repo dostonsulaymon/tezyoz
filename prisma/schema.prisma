@@ -20,8 +20,9 @@ model User {
 
   mails Mail[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Attempt   Attempt[]
 
   @@map("user")
 }
@@ -41,6 +42,52 @@ model Mail {
   updatedAt DateTime @updatedAt
 
   @@map("mail")
+}
+
+model GameMode {
+  id    String       @id @default(auto()) @map("_id") @db.ObjectId
+  type  GameModeType
+  value Int
+
+  attempts Attempt[]
+}
+
+model Text {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  language  Language
+  content   String
+  createdAt DateTime @default(now())
+
+  attempts Attempt[]
+}
+
+model Attempt {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String?  @db.ObjectId
+  user       User?    @relation(fields: [userId], references: [id])
+  language   Language
+  gameModeId String   @db.ObjectId
+  gameMode   GameMode @relation(fields: [gameModeId], references: [id])
+
+  textId String? @db.ObjectId
+  text   Text?   @relation(fields: [textId], references: [id])
+
+  wpm      Float
+  accuracy Float
+  errors   Int?
+
+  createdAt DateTime @default(now())
+}
+
+enum Language {
+  UZBEK
+  RUSSIAN
+  ENGLISH
+}
+
+enum GameModeType {
+  BY_TIME
+  BY_WORD
 }
 
 enum MailStatus {
