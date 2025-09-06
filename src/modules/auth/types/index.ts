@@ -9,6 +9,7 @@ export enum UserRole {
 export type JWTPayloadForUser = {
   userId: string;
   role: UserRole;
+  email: string;
 };
 
 export interface AuthRequest extends Request {

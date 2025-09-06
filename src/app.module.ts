@@ -6,6 +6,7 @@ import { AuthModule } from '#/modules/auth/auth.module';
 import { MailModule } from '#/modules/mail/mail.module';
 import { AppController } from '#/app.controller';
 import { TextModule } from '#/modules/text/text.module';
+import { UserModule } from '#/modules/user/user.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { TextModule } from '#/modules/text/text.module';
     AuthModule,
     MailModule,
     TextModule,
+    UserModule
   ],
 
   controllers: [AppController],

@@ -63,11 +63,6 @@ export class TextController {
     description: 'Texts successfully retrieved',
     type: GetAllTextsSuccessResponse,
   })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal server error - Database or server issues',
-    type: InternalServerErrorResponse,
-  })
   async getAll(@Query() query: GetAllTextsDto) {
     return await this.textService.getAll(query);
   }
@@ -112,16 +107,6 @@ export class TextController {
     description: 'Text successfully created',
     type: CreateTextSuccessResponse,
   })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad request - Invalid input data or validation errors',
-    type: TextValidationErrorResponse,
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal server error - Database or server issues',
-    type: InternalServerErrorResponse,
-  })
   async createOne(@Body() createTextDto: CreateTextDto) {
     return await this.textService.createOne(createTextDto);
   }
@@ -144,16 +129,6 @@ export class TextController {
     status: 200,
     description: 'Text successfully retrieved',
     type: GetTextSuccessResponse,
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Text not found - No text exists with the provided ID',
-    type: TextNotFoundErrorResponse,
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal server error - Database or server issues',
-    type: InternalServerErrorResponse,
   })
   async getOne(@Param('id') id: string) {
     return await this.textService.getOne(id);
@@ -208,16 +183,6 @@ export class TextController {
     description: 'Bad request - Invalid input data or validation errors',
     type: TextValidationErrorResponse,
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Text not found - No text exists with the provided ID',
-    type: TextNotFoundErrorResponse,
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal server error - Database or server issues',
-    type: InternalServerErrorResponse,
-  })
   async updateOne(@Param('id') id: string, @Body() updateTextDto: UpdateTextDto) {
     return await this.textService.updateOne(id, updateTextDto);
   }
@@ -240,16 +205,6 @@ export class TextController {
     status: 200,
     description: 'Text successfully deleted',
     type: DeleteTextSuccessResponse,
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Text not found - No text exists with the provided ID',
-    type: TextNotFoundErrorResponse,
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal server error - Database or server issues',
-    type: InternalServerErrorResponse,
   })
   async deleteOne(@Param('id') id: string) {
     return await this.textService.deleteOne(id);
@@ -315,16 +270,6 @@ export class TextController {
     status: 201,
     description: 'Texts successfully created in bulk',
     type: CreateBulkTextSuccessResponse,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad request - Invalid input data, validation errors, or empty array',
-    type: TextValidationErrorResponse,
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal server error - Database or server issues during bulk operation',
-    type: InternalServerErrorResponse,
   })
   async createBulk(@Body() createBulkTextDto: CreateBulkTextDto) {
     return await this.textService.createBulk(createBulkTextDto.texts);

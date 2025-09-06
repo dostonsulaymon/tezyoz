@@ -45,11 +45,11 @@ export class AuthService {
         }
 
         await this.databaseService.mail.deleteMany({
-          where: { userId: existingUser.id }
+          where: { userId: existingUser.id },
         });
 
         await this.databaseService.user.delete({
-          where: { id: existingUser.id }
+          where: { id: existingUser.id },
         });
       }
     }
@@ -116,8 +116,8 @@ export class AuthService {
     });
 
     const userRole = this.mapPrismaRoleToEnumRole(newUser.role);
-    const accessToken = await this.getAccessToken({ userId: newUser.id, role: userRole });
-    const refreshToken = await this.getRefreshToken({ userId: newUser.id, role: userRole });
+    const accessToken = await this.getAccessToken({ userId: newUser.id, role: userRole, email });
+    const refreshToken = await this.getRefreshToken({ userId: newUser.id, role: userRole, email });
 
     return {
       message: 'User verified successfully',
@@ -145,8 +145,8 @@ export class AuthService {
 
     // FIX: Use the actual user role from database instead of hardcoding
     const userRole = this.mapPrismaRoleToEnumRole(user.role);
-    const accessToken = await this.getAccessToken({ userId: user.id, role: userRole });
-    const refreshToken = await this.getRefreshToken({ userId: user.id, role: userRole });
+    const accessToken = await this.getAccessToken({ userId: user.id, role: userRole, email: user.email });
+    const refreshToken = await this.getRefreshToken({ userId: user.id, role: userRole, email: user.email });
 
     return {
       message: 'Login successful',
@@ -204,7 +204,6 @@ export class AuthService {
 
       const usersToDelete = expiredUsers.filter(user => {
         if (user.mails.length === 0) {
-          // No OTP sent, delete user (shouldn't happen in normal flow)
           return true;
         }
 
@@ -217,7 +216,6 @@ export class AuthService {
       if (usersToDelete.length > 0) {
         const userIds = usersToDelete.map(user => user.id);
 
-        // Delete associated mail records first
         await this.databaseService.mail.deleteMany({
           where: {
             userId: {

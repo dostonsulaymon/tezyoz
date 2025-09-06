@@ -26,16 +26,6 @@ export class AuthController {
     description: 'User successfully registered',
     type: RegisterSuccessResponse,
   })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad request - Invalid input data',
-    type: ValidationErrorResponse,
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'Conflict - User already exists',
-    type: ConflictErrorResponse,
-  })
   async register(@Body() registerData: RegisterDto) {
     return await this.authService.register(registerData);
   }
@@ -66,16 +56,6 @@ export class AuthController {
       },
     },
   })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad request - Invalid input data or expired/invalid OTP',
-    type: ValidationErrorResponse,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized - Invalid OTP code',
-    type: UnauthorizedErrorResponse,
-  })
   async verifyOtp(@Body() verifyDto: VerifyDto) {
     return await this.authService.verifyOtp(verifyDto.email, verifyDto.code);
   }
@@ -87,16 +67,6 @@ export class AuthController {
     status: 200,
     description: 'User successfully logged in',
     type: LoginSuccessResponse,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad request - Invalid input data',
-    type: ValidationErrorResponse,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized - Invalid credentials',
-    type: UnauthorizedErrorResponse,
   })
   async login(@Body() loginData: LoginDto) {
     return await this.authService.login(loginData);
