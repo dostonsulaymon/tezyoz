@@ -4,6 +4,7 @@ import { DatabaseModule } from './modules/database/database.module';
 import { validateEnv } from './shared/configs/env.config';
 import { AuthModule } from '#/modules/auth/auth.module';
 import { MailModule } from '#/modules/mail/mail.module';
+import { AppController } from '#/app.controller';
 
 @Module({
   imports: [
@@ -16,5 +17,7 @@ import { MailModule } from '#/modules/mail/mail.module';
     AuthModule,
     MailModule,
   ],
+
+  controllers: [AppController],
 })
 export class AppModule {}
