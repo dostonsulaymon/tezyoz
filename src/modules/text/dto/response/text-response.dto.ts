@@ -31,6 +31,14 @@ export class TextDto {
     format: 'date-time'
   })
   createdAt: string;
+
+  @ApiProperty({
+    description: 'Last update timestamp',
+    example: '2024-01-16T14:20:00.000Z',
+    type: 'string',
+    format: 'date-time'
+  })
+  updatedAt: string;
 }
 
 export class CreateTextResponseData {
@@ -39,6 +47,30 @@ export class CreateTextResponseData {
     type: TextDto
   })
   text: TextDto;
+}
+
+export class GetTextResponseData {
+  @ApiProperty({
+    description: 'Retrieved text information',
+    type: TextDto
+  })
+  text: TextDto;
+}
+
+export class UpdateTextResponseData {
+  @ApiProperty({
+    description: 'Updated text information',
+    type: TextDto
+  })
+  updatedText: TextDto;
+}
+
+export class DeleteTextResponseData {
+  @ApiProperty({
+    description: 'Deleted text information',
+    type: TextDto
+  })
+  deletedText: TextDto;
 }
 
 export class BulkTextResponseData {
@@ -54,6 +86,72 @@ export class BulkTextResponseData {
     type: 'number'
   })
   count: number;
+}
+
+export class PaginationDto {
+  @ApiProperty({
+    description: 'Current page number',
+    example: 1,
+  })
+  page: number;
+
+  @ApiProperty({
+    description: 'Items per page',
+    example: 10,
+  })
+  limit: number;
+
+  @ApiProperty({
+    description: 'Total number of items',
+    example: 50,
+  })
+  total: number;
+
+  @ApiProperty({
+    description: 'Total number of pages',
+    example: 5,
+  })
+  totalPages: number;
+}
+
+export class GetAllTextsResponseData {
+  @ApiProperty({
+    description: 'List of texts',
+    type: [TextDto],
+  })
+  texts: TextDto[];
+
+  @ApiProperty({
+    description: 'Pagination information',
+    type: PaginationDto,
+  })
+  pagination: PaginationDto;
+}
+
+export class GetAllTextsSuccessResponse extends SuccessResponse<GetAllTextsResponseData> {
+  @ApiProperty({
+    example: true,
+    description: 'Success status',
+  })
+  success: boolean;
+
+  @ApiProperty({
+    example: 200,
+    description: 'HTTP status code',
+  })
+  statusCode: number;
+
+  @ApiProperty({
+    example: 'Texts retrieved successfully',
+    description: 'Success message',
+  })
+  message: string;
+
+  @ApiProperty({
+    type: GetAllTextsResponseData,
+    description: 'Retrieved texts with pagination data',
+  })
+  data: GetAllTextsResponseData;
 }
 
 export class CreateTextSuccessResponse extends SuccessResponse<CreateTextResponseData> {
@@ -80,6 +178,84 @@ export class CreateTextSuccessResponse extends SuccessResponse<CreateTextRespons
     description: 'Created text data'
   })
   data: CreateTextResponseData;
+}
+
+export class GetTextSuccessResponse extends SuccessResponse<GetTextResponseData> {
+  @ApiProperty({
+    example: true,
+    description: 'Success status'
+  })
+  success: boolean;
+
+  @ApiProperty({
+    example: 200,
+    description: 'HTTP status code'
+  })
+  statusCode: number;
+
+  @ApiProperty({
+    example: 'Text retrieved successfully',
+    description: 'Success message'
+  })
+  message: string;
+
+  @ApiProperty({
+    type: GetTextResponseData,
+    description: 'Retrieved text data'
+  })
+  data: GetTextResponseData;
+}
+
+export class UpdateTextSuccessResponse extends SuccessResponse<UpdateTextResponseData> {
+  @ApiProperty({
+    example: true,
+    description: 'Success status'
+  })
+  success: boolean;
+
+  @ApiProperty({
+    example: 200,
+    description: 'HTTP status code'
+  })
+  statusCode: number;
+
+  @ApiProperty({
+    example: 'Text updated successfully',
+    description: 'Success message'
+  })
+  message: string;
+
+  @ApiProperty({
+    type: UpdateTextResponseData,
+    description: 'Updated text data'
+  })
+  data: UpdateTextResponseData;
+}
+
+export class DeleteTextSuccessResponse extends SuccessResponse<DeleteTextResponseData> {
+  @ApiProperty({
+    example: true,
+    description: 'Success status'
+  })
+  success: boolean;
+
+  @ApiProperty({
+    example: 200,
+    description: 'HTTP status code'
+  })
+  statusCode: number;
+
+  @ApiProperty({
+    example: 'Text deleted successfully',
+    description: 'Success message'
+  })
+  message: string;
+
+  @ApiProperty({
+    type: DeleteTextResponseData,
+    description: 'Deleted text data'
+  })
+  data: DeleteTextResponseData;
 }
 
 export class CreateBulkTextSuccessResponse extends SuccessResponse<BulkTextResponseData> {
@@ -145,6 +321,32 @@ export class TextValidationErrorResponse extends ErrorResponse {
   details: string[];
 }
 
+export class TextNotFoundErrorResponse extends ErrorResponse {
+  @ApiProperty({
+    example: false,
+    description: 'Success status'
+  })
+  success: boolean;
+
+  @ApiProperty({
+    example: 404,
+    description: 'HTTP status code'
+  })
+  statusCode: number;
+
+  @ApiProperty({
+    example: 'Text with ID "507f1f77bcf86cd799439011" not found.',
+    description: 'Error message'
+  })
+  message: string;
+
+  @ApiProperty({
+    example: 'NotFoundException',
+    description: 'Error type'
+  })
+  error: string;
+}
+
 export class InternalServerErrorResponse extends ErrorResponse {
   @ApiProperty({
     example: false,
@@ -169,4 +371,6 @@ export class InternalServerErrorResponse extends ErrorResponse {
     description: 'Error type'
   })
   error: string;
+
+
 }
