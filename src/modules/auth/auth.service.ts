@@ -24,12 +24,34 @@ export class AuthService {
   async register(registerData: RegisterDto) {
     logger.info('Registration attempt', { email: registerData.email });
 
+    await this.cleanupExpiredRegistrations();
+
     const existingUser = await this.databaseService.user.findUnique({
-      where: { email: registerData.email, status: UserStatus.ACTIVE },
+      where: { email: registerData.email },
+      include: { mails: true },
     });
 
     if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+      if (existingUser.status === 'ACTIVE') {
+        throw new ConflictException('User with this email already exists');
+      }
+
+      if (existingUser.status === 'IN_REGISTRATION') {
+        const latestMail = existingUser.mails.sort((a, b) =>
+          b.createdAt.getTime() - a.createdAt.getTime())[0];
+
+        if (latestMail && latestMail.expiresAt > new Date() && latestMail.status === 'PENDING') {
+          throw new ConflictException('Registration already in progress. Please check your email for the OTP or wait for it to expire.');
+        }
+
+        await this.databaseService.mail.deleteMany({
+          where: { userId: existingUser.id }
+        });
+
+        await this.databaseService.user.delete({
+          where: { id: existingUser.id }
+        });
+      }
     }
 
     const hashedPassword = await hashPassword(registerData.password);
