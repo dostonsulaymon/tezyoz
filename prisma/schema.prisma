@@ -50,6 +50,8 @@ model GameMode {
   value Int
 
   attempts Attempt[]
+
+  @@map("game_mode")
 }
 
 model Text {
@@ -59,6 +61,8 @@ model Text {
   createdAt DateTime @default(now())
 
   attempts Attempt[]
+
+  @@map("text")
 }
 
 model Attempt {
@@ -77,6 +81,8 @@ model Attempt {
   errors   Int?
 
   createdAt DateTime @default(now())
+
+  @@map("attempt")
 }
 
 enum Language {
