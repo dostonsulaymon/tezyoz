@@ -7,6 +7,7 @@ import { MailModule } from '#/modules/mail/mail.module';
 import { AppController } from '#/app.controller';
 import { TextModule } from '#/modules/text/text.module';
 import { UserModule } from '#/modules/user/user.module';
+import { AttemptModule } from '#/modules/attempt/attempt.module';
 
 @Module({
   imports: [
@@ -19,9 +20,11 @@ import { UserModule } from '#/modules/user/user.module';
     AuthModule,
     MailModule,
     TextModule,
-    UserModule
+    UserModule,
+    AttemptModule,
   ],
 
   controllers: [AppController],
 })
-export class AppModule {}
+export class AppModule {
+}
