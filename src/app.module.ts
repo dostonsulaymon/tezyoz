@@ -23,6 +23,7 @@ import { GamemodeModule } from '#/modules/gamemode/gamemode.module';
     TextModule,
     UserModule,
     AttemptModule,
+    GamemodeModule
   ],
 
   controllers: [AppController],
