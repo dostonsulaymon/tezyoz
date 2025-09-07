@@ -8,6 +8,7 @@ import { AppController } from '#/app.controller';
 import { TextModule } from '#/modules/text/text.module';
 import { UserModule } from '#/modules/user/user.module';
 import { AttemptModule } from '#/modules/attempt/attempt.module';
+import { GamemodeModule } from '#/modules/gamemode/gamemode.module';
 
 @Module({
   imports: [

@@ -26,6 +26,29 @@ export class AuthController {
     description: 'User successfully registered',
     type: RegisterSuccessResponse,
   })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation failed - Invalid input data',
+    type: ValidationErrorResponse,
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict - User with this email already exists or registration already in progress',
+    type: ConflictErrorResponse,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: false },
+        statusCode: { type: 'number', example: 500 },
+        message: { type: 'string', example: 'Internal server error' },
+        error: { type: 'string', example: 'InternalServerErrorException' },
+      },
+    },
+  })
   async register(@Body() registerData: RegisterDto) {
     return await this.authService.register(registerData);
   }
@@ -52,7 +75,39 @@ export class AuthController {
       type: 'object',
       properties: {
         success: { type: 'boolean', example: true },
-        message: { type: 'string', example: 'OTP verified successfully' },
+        message: { type: 'string', example: 'User verified successfully' },
+        accessToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+        refreshToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - Invalid OTP, expired OTP, or user not found',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: false },
+        statusCode: { type: 'number', example: 400 },
+        message: {
+          type: 'string',
+          example: 'Invalid OTP',
+          enum: ['User not found', 'Invalid OTP', 'OTP expired']
+        },
+        error: { type: 'string', example: 'BadRequestException' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: false },
+        statusCode: { type: 'number', example: 500 },
+        message: { type: 'string', example: 'Internal server error' },
+        error: { type: 'string', example: 'InternalServerErrorException' },
       },
     },
   })
@@ -67,6 +122,29 @@ export class AuthController {
     status: 200,
     description: 'User successfully logged in',
     type: LoginSuccessResponse,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation failed - Invalid input data',
+    type: ValidationErrorResponse,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid credentials or user not active',
+    type: UnauthorizedErrorResponse,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: false },
+        statusCode: { type: 'number', example: 500 },
+        message: { type: 'string', example: 'Internal server error' },
+        error: { type: 'string', example: 'InternalServerErrorException' },
+      },
+    },
   })
   async login(@Body() loginData: LoginDto) {
     return await this.authService.login(loginData);
