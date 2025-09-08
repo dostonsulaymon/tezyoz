@@ -42,7 +42,6 @@ export class AttemptController {
       authenticatedUser: {
         summary: 'Authenticated user attempt',
         value: {
-          textId: '507f1f77bcf86cd799439011',
           language: Language.ENGLISH,
           gameModeId: '507f1f77bcf86cd799439012',
           wpm: 65.5,
@@ -53,25 +52,12 @@ export class AttemptController {
       guestUser: {
         summary: 'Guest user attempt',
         value: {
-          textId: '507f1f77bcf86cd799439011',
           language: Language.ENGLISH,
           gameModeId: '507f1f77bcf86cd799439012',
           wpm: 45.2,
           accuracy: 94.1,
           errors: 5,
           username: 'guest_typing_master',
-        },
-      },
-      customText: {
-        summary: 'Custom text attempt',
-        value: {
-          customText: 'This is a custom typing text for practice.',
-          language: Language.ENGLISH,
-          gameModeId: '507f1f77bcf86cd799439012',
-          wpm: 52.3,
-          accuracy: 95.5,
-          errors: 3,
-          username: 'guest_user_123',
         },
       },
     },
@@ -88,7 +74,7 @@ export class AttemptController {
   })
   @ApiResponse({
     status: 404,
-    description: 'Game mode or text not found',
+    description: 'Game mode not found',
     type: AttemptNotFoundErrorResponse,
   })
   @ApiResponse({
@@ -242,18 +228,11 @@ export class AttemptController {
     example: 'global',
   })
   @ApiQuery({
-    name: 'gameModeType',
-    description: 'Game mode type (required if type is gameMode)',
+    name: 'gameModeId',
+    description: 'Game mode ID (required if type is gameMode)',
     required: false,
-    enum: GameModeType,
-    example: GameModeType.BY_TIME,
-  })
-  @ApiQuery({
-    name: 'gameModeValue',
-    description: 'Game mode value (required if type is gameMode)',
-    required: false,
-    type: Number,
-    example: 30,
+    type: String,
+    example: '68bc1c01d22b4badd4387a4f',
   })
   @ApiQuery({
     name: 'language',

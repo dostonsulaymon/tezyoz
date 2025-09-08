@@ -60,8 +60,6 @@ model Text {
   content   String
   createdAt DateTime @default(now())
 
-  attempts Attempt[]
-
   @@map("text")
 }
 
@@ -72,9 +70,6 @@ model Attempt {
   language   Language
   gameModeId String   @db.ObjectId
   gameMode   GameMode @relation(fields: [gameModeId], references: [id])
-
-  textId String? @db.ObjectId
-  text   Text?   @relation(fields: [textId], references: [id])
 
   wpm      Float
   accuracy Float

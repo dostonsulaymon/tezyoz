@@ -28,17 +28,6 @@ export class AttemptService {
       throw new NotFoundException(`Game mode with ID "${createAttemptDto.gameModeId}" not found.`);
     }
 
-    let text = null;
-    if (createAttemptDto.textId) {
-      // @ts-ignore
-      text = await this.databaseService.text.findUnique({
-        where: { id: createAttemptDto.textId },
-      });
-
-      if (!text) {
-        throw new NotFoundException(`Text with ID "${createAttemptDto.textId}" not found.`);
-      }
-    }
 
     // Get username for display
     let displayUsername: string | undefined;
@@ -59,7 +48,6 @@ export class AttemptService {
         userId: user?.userId || null,
         language: createAttemptDto.language,
         gameModeId: createAttemptDto.gameModeId,
-        textId: createAttemptDto.textId || null,
         wpm: createAttemptDto.wpm,
         accuracy: createAttemptDto.accuracy,
         errors: createAttemptDto.errors || 0,
@@ -399,8 +387,7 @@ export class AttemptService {
   async getLeaderboard(query: GetLeaderboardDto) {
     const {
       type = 'global',
-      gameModeType,
-      gameModeValue,
+      gameModeId,
       language,
       period = 'all',
       metric = 'wpm',
@@ -410,22 +397,14 @@ export class AttemptService {
     const skip = (page - 1) * Math.min(limit, 100);
     const take = Math.min(limit, 100);
 
-    // Build where conditions
+    // Build where conditions (avoid relation filters in groupBy)
     let where: any = {
-      user: {
-        isNot: null,
-        username: {
-          not: null,
-        },
-      },
+      userId: { not: null },
     };
 
     // Apply type-specific filters
-    if (type === 'gameMode' && gameModeType && gameModeValue) {
-      where.gameMode = {
-        type: gameModeType,
-        value: gameModeValue,
-      };
+    if (type === 'gameMode' && gameModeId) {
+      where.gameModeId = gameModeId;
     }
 
     if (type === 'language' && language) {
@@ -472,41 +451,49 @@ export class AttemptService {
     });
 
     // Get user details for leaderboard entries
-    const leaderboard = await Promise.all(
-      leaderboardData.map(async (entry, index) => {
-        const user = await this.databaseService.user.findUnique({
-          where: { id: entry.userId! },
-          select: { username: true },
-        });
+    const leaderboardPromises = leaderboardData.map(async (entry, index) => {
+      const user = await this.databaseService.user.findUnique({
+        where: { id: entry.userId! },
+        select: { username: true },
+      });
 
-        const bestAttempt = await this.databaseService.attempt.findFirst({
-          where: {
-            userId: entry.userId!,
-            [metric]: entry._max[metric],
-            ...where,
-          },
-          select: {
-            wpm: true,
-            accuracy: true,
-            createdAt: true,
-          },
-        });
+      // Skip users without username
+      if (!user?.username) {
+        return null;
+      }
 
-        return {
-          rank: skip + index + 1,
-          username: user?.username!,
-          value: entry._max[metric]!,
-          attempts: entry._count,
-          bestAttempt: {
-            wpm: bestAttempt!.wpm,
-            accuracy: bestAttempt!.accuracy,
-            date: bestAttempt!.createdAt.toISOString(),
-          },
-        };
-      }),
-    );
+      // Build non-user filters for bestAttempt query
+      const { userId: _ignoredUserId, ...nonUserFilters } = where;
+      const bestAttempt = await this.databaseService.attempt.findFirst({
+        where: {
+          ...nonUserFilters,
+          userId: entry.userId!,
+          [metric]: entry._max[metric],
+        },
+        select: {
+          wpm: true,
+          accuracy: true,
+          createdAt: true,
+        },
+      });
 
-    // Get total count for pagination
+      return {
+        rank: skip + index + 1,
+        username: user.username,
+        value: entry._max[metric]!,
+        attempts: entry._count,
+        bestAttempt: {
+          wpm: bestAttempt!.wpm,
+          accuracy: bestAttempt!.accuracy,
+          date: bestAttempt!.createdAt.toISOString(),
+        },
+      };
+    });
+
+    const leaderboardResults = await Promise.all(leaderboardPromises);
+    const leaderboard = leaderboardResults.filter(entry => entry !== null);
+
+    // Get total count for pagination (we'll approximate since we filter by username later)
     const totalCount = await this.databaseService.attempt.groupBy({
       by: ['userId'],
       where,
@@ -515,12 +502,9 @@ export class AttemptService {
 
     // Get context information
     let gameMode;
-    if (type === 'gameMode' && gameModeType && gameModeValue) {
-      gameMode = await this.databaseService.gameMode.findFirst({
-        where: {
-          type: gameModeType,
-          value: gameModeValue,
-        },
+    if (type === 'gameMode' && gameModeId) {
+      gameMode = await this.databaseService.gameMode.findUnique({
+        where: { id: gameModeId },
       });
     }
 

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsEnum, IsInt, IsString, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Language, GameModeType } from '@prisma/client';
+import { Language } from '@prisma/client';
 
 export class GetLeaderboardDto {
   @ApiProperty({
@@ -15,25 +15,14 @@ export class GetLeaderboardDto {
   type?: 'global' | 'gameMode' | 'language' = 'global';
 
   @ApiProperty({
-    description: 'Game mode type (required if type is gameMode)',
-    enum: GameModeType,
-    required: false
-  })
-  @IsOptional()
-  @IsEnum(GameModeType, { message: 'Game mode type must be valid.' })
-  gameModeType?: GameModeType;
-
-  @ApiProperty({
-    description: 'Game mode value (required if type is gameMode)',
-    example: 30,
+    description: 'Game mode ID (required if type is gameMode)',
+    example: '68bc1c01d22b4badd4387a4f',
     required: false,
-    type: 'number'
+    type: 'string'
   })
   @IsOptional()
-  @Type(() => Number)
-  @IsInt({ message: 'Game mode value must be an integer.' })
-  @Min(1, { message: 'Game mode value must be positive.' })
-  gameModeValue?: number;
+  @IsString({ message: 'Game mode ID must be a string.' })
+  gameModeId?: string;
 
   @ApiProperty({
     description: 'Language filter (required if type is language)',

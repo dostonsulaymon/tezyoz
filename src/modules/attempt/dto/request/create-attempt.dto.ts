@@ -3,26 +3,6 @@ import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min, Max, IsDateStr
 import { Language } from '@prisma/client';
 
 export class CreateAttemptDto {
-  @ApiProperty({
-    description: 'ID of the text used for typing (optional for custom texts)',
-    example: '507f1f77bcf86cd799439011',
-    required: false,
-    type: 'string'
-  })
-  @IsOptional()
-  @IsString({ message: 'Text ID must be a string.' })
-  textId?: string;
-
-  @ApiProperty({
-    description: 'Custom text content (optional if textId is provided)',
-    example: 'This is a custom text to type.',
-    required: false,
-    type: 'string',
-    maxLength: 2000
-  })
-  @IsOptional()
-  @IsString({ message: 'Custom text must be a string.' })
-  customText?: string;
 
   @ApiProperty({
     description: 'Language of the typing attempt',
