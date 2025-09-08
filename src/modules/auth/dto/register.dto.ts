@@ -4,10 +4,19 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
 
+
+  @ApiProperty({
+    description: 'username',
+    example: 'userjon',
+    type: 'string',
+  })
+  @IsEmail({}, { message: 'Please provide a username' })
+  username: string;
+
   @ApiProperty({
     description: 'User email address',
     example: 'user@example.com',
-    format: 'email'
+    format: 'email',
   })
   @IsEmail({}, { message: 'Please provide a valid email address' })
   email: string;
@@ -16,7 +25,7 @@ export class RegisterDto {
     description: 'User password',
     example: 'password123',
     minLength: 6,
-    type: 'string'
+    type: 'string',
   })
   @IsNotEmpty({ message: 'Password is required' })
   @IsString({ message: 'Password must be a string' })

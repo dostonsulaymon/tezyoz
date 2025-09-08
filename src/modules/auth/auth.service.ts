@@ -60,6 +60,7 @@ export class AuthService {
       data: {
         email: registerData.email,
         password: hashedPassword,
+        username: registerData.username,
         status: 'IN_REGISTRATION',
         role: 'USER',
       },
