@@ -15,10 +15,10 @@ export class CreateTextDto {
   @ApiProperty({
     description: 'The text content.',
     example: 'This is an example text in the chosen language.',
-    maxLength: 1500,
+    maxLength: 10000,
   })
   @IsNotEmpty({ message: 'Content is required.' })
   @IsString({ message: 'Content must be a string.' })
-  @MaxLength(1500, { message: 'Content must not exceed 1500 characters.' })
+  @MaxLength(10000, { message: 'Content must not exceed 1500 characters.' })
   content: string;
 }

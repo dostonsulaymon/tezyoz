@@ -3,6 +3,8 @@ import { CreateTextDto } from '#/modules/text/dto/request/create-text.dto';
 import { UpdateTextDto } from '#/modules/text/dto/request/update-text.dto';
 import { DatabaseService } from '#/modules/database/database.service';
 import { GetAllTextsDto } from '#/modules/text/dto/request/get-all-texts.dto';
+import { GetTextsForGameDto } from '#/modules/text/dto/request/get-texts-for-game.dto';
+import { GameModeType, Language } from '@prisma/client';
 
 @Injectable()
 export class TextService {
@@ -113,6 +115,58 @@ export class TextService {
     return {
       message: 'Bulk texts created successfully.',
       count: result.count,
+    };
+  }
+
+  async getTextsForGame(query: GetTextsForGameDto) {
+    const { gameModeId, language } = query;
+
+    // Validate that the provided gameModeId exists
+    const gameMode = await this.databaseService.gameMode.findUnique({
+      where: { id: gameModeId },
+    });
+    
+    if (!gameMode) {
+      throw new NotFoundException(`Game mode with ID "${gameModeId}" not found.`);
+    }
+
+    // Get random texts for the specified language
+    const availableTexts = await this.databaseService.text.findMany({
+      where: { language },
+    });
+
+    if (availableTexts.length === 0) {
+      throw new NotFoundException(`No texts found for language ${language}.`);
+    }
+
+    // Pick a random text
+    const randomText = availableTexts[Math.floor(Math.random() * availableTexts.length)];
+
+    let gameContent: string;
+    let wordCount: number | null = null;
+
+    if (gameMode.type === GameModeType.BY_WORD) {
+      // For word-based games, return exactly the number of words specified
+      const words = randomText.content.split(/\s+/).filter(word => word.length > 0);
+      const targetWords = words.slice(0, gameMode.value);
+      gameContent = targetWords.join(' ');
+      wordCount = targetWords.length;
+    } else {
+      // For time-based games, return the full text
+      gameContent = randomText.content;
+      wordCount = randomText.content.split(/\s+/).filter(word => word.length > 0).length;
+    }
+
+    return {
+      message: 'Game text retrieved successfully.',
+      gameMode: {
+        id: gameMode.id,
+        type: gameMode.type,
+        value: gameMode.value,
+      },
+      content: gameContent,
+      wordCount,
+      language,
     };
   }
 }

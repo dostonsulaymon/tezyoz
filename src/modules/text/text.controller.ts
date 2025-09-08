@@ -21,6 +21,8 @@ import { RolesGuard } from '#/modules/auth/guards/roles.guard';
 import { Roles } from '#/modules/auth/decorators/roles.decorator';
 import { UserRole } from '#/modules/auth/types';
 import { GetAllTextsDto } from '#/modules/text/dto/request/get-all-texts.dto';
+import { GetTextsForGameDto } from '#/modules/text/dto/request/get-texts-for-game.dto';
+import { GetGameTextSuccessResponse } from '#/modules/text/dto/response/game-text-response.dto';
 
 @ApiTags('Text Management')
 @Controller('text')
@@ -66,6 +68,45 @@ export class TextController {
   async getAll(@Query() query: GetAllTextsDto) {
     return await this.textService.getAll(query);
   }
+
+  @Get('for-game')
+  @ApiOperation({
+    summary: 'Get text for game session',
+    description: 'Retrieves text content for a game session based on game mode and language. For BY_WORD modes, returns exactly the specified number of words. For BY_TIME modes, returns full text content.',
+  })
+  @ApiQuery({
+    name: 'gameModeId',
+    description: 'Game mode ID',
+    required: true,
+    type: String,
+    example: '507f1f77bcf86cd799439011',
+  })
+  @ApiQuery({
+    name: 'language',
+    description: 'Text language',
+    required: true,
+    enum: Language,
+    example: Language.ENGLISH,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Game text retrieved successfully',
+    type: GetGameTextSuccessResponse,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Game mode not found or no texts available for the specified language',
+    type: TextNotFoundErrorResponse,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    type: InternalServerErrorResponse,
+  })
+  async getTextForGame(@Query() query: GetTextsForGameDto) {
+    return await this.textService.getTextsForGame(query);
+  }
+
 
   @Post()
   @UseGuards(AuthGuard('jwt-access'), RolesGuard)
@@ -274,4 +315,5 @@ export class TextController {
   async createBulk(@Body() createBulkTextDto: CreateBulkTextDto) {
     return await this.textService.createBulk(createBulkTextDto.texts);
   }
+
 }
