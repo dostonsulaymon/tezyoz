@@ -10,7 +10,7 @@ export class RegisterDto {
     example: 'userjon',
     type: 'string',
   })
-  @IsEmail({}, { message: 'Please provide a username' })
+  @IsString({ message: 'Please provide a username' })
   username: string;
 
   @ApiProperty({
