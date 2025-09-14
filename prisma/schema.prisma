@@ -71,9 +71,12 @@ model Attempt {
   gameModeId String   @db.ObjectId
   gameMode   GameMode @relation(fields: [gameModeId], references: [id])
 
-  wpm      Float
-  accuracy Float
-  errors   Int?
+  wpm          Float
+  accuracy     Float
+  errors       Int?
+  correctChars Int
+  totalChars   Int
+  timeElapsed  Int
 
   createdAt DateTime @default(now())
 

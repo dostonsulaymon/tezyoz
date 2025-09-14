@@ -7,7 +7,7 @@ export class CreateAttemptDto {
   @ApiProperty({
     description: 'Language of the typing attempt',
     example: Language.ENGLISH,
-    enum: Language
+    enum: Language,
   })
   @IsNotEmpty({ message: 'Language is required.' })
   @IsEnum(Language, { message: `Language must be one of: ${Object.values(Language).join(', ')}.` })
@@ -16,7 +16,7 @@ export class CreateAttemptDto {
   @ApiProperty({
     description: 'Game mode ID',
     example: '507f1f77bcf86cd799439011',
-    type: 'string'
+    type: 'string',
   })
   @IsNotEmpty({ message: 'Game mode ID is required.' })
   @IsString({ message: 'Game mode ID must be a string.' })
@@ -27,7 +27,7 @@ export class CreateAttemptDto {
     example: 45.5,
     type: 'number',
     minimum: 0,
-    maximum: 300
+    maximum: 300,
   })
   @IsNotEmpty({ message: 'WPM is required.' })
   @IsNumber({}, { message: 'WPM must be a number.' })
@@ -40,7 +40,7 @@ export class CreateAttemptDto {
     example: 94.5,
     type: 'number',
     minimum: 0,
-    maximum: 100
+    maximum: 100,
   })
   @IsNotEmpty({ message: 'Accuracy is required.' })
   @IsNumber({}, { message: 'Accuracy must be a number.' })
@@ -53,7 +53,7 @@ export class CreateAttemptDto {
     example: 3,
     required: false,
     type: 'number',
-    minimum: 0
+    minimum: 0,
   })
   @IsOptional()
   @IsNumber({}, { message: 'Errors must be a number.' })
@@ -66,9 +66,42 @@ export class CreateAttemptDto {
     required: false,
     type: 'string',
     minLength: 3,
-    maxLength: 30
+    maxLength: 30,
   })
   @IsOptional()
   @IsString({ message: 'Username must be a string.' })
   username?: string;
+
+  @ApiProperty({
+    description: 'Number of correctly typed characters',
+    example: 150,
+    type: 'number',
+    minimum: 0,
+  })
+  @IsNotEmpty({ message: 'Correct characters count is required.' })
+  @IsNumber({}, { message: 'Correct characters must be a number.' })
+  @Min(0, { message: 'Correct characters cannot be negative.' })
+  correctChars: number;
+
+  @ApiProperty({
+    description: 'Total number of characters in the text',
+    example: 200,
+    type: 'number',
+    minimum: 1,
+  })
+  @IsNotEmpty({ message: 'Total characters count is required.' })
+  @IsNumber({}, { message: 'Total characters must be a number.' })
+  @Min(1, { message: 'Total characters must be at least 1.' })
+  totalChars: number;
+
+  @ApiProperty({
+    description: 'Time elapsed in seconds',
+    example: 60,
+    type: 'number',
+    minimum: 1,
+  })
+  @IsNotEmpty({ message: 'Time elapsed is required.' })
+  @IsNumber({}, { message: 'Time elapsed must be a number.' })
+  @Min(1, { message: 'Time elapsed must be at least 1 second.' })
+  timeElapsed: number;
 }

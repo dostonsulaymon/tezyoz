@@ -51,10 +51,12 @@ export class AttemptService {
         wpm: createAttemptDto.wpm,
         accuracy: createAttemptDto.accuracy,
         errors: createAttemptDto.errors || 0,
+        correctChars: createAttemptDto.correctChars,
+        totalChars: createAttemptDto.totalChars,
+        timeElapsed: createAttemptDto.timeElapsed,
       },
       include: {
         gameMode: true,
-        text: true,
         user: {
           select: {
             id: true,
@@ -108,13 +110,15 @@ export class AttemptService {
         id: attempt.id,
         userId: attempt.userId,
         username: displayUsername,
-        user: attempt.user,
+        user: attempt.userId,
         language: attempt.language,
-        gameMode: attempt.gameMode,
-        text: attempt.text,
+        gameMode: attempt.gameModeId,
         wpm: attempt.wpm,
         accuracy: attempt.accuracy,
         errors: attempt.errors,
+        correctChars: attempt.correctChars,
+        totalChars: attempt.totalChars,
+        timeElapsed: attempt.timeElapsed,
         createdAt: attempt.createdAt.toISOString(),
         isPersonalBest,
       },
@@ -166,7 +170,6 @@ export class AttemptService {
         orderBy: { [sortBy]: sortOrder },
         include: {
           gameMode: true,
-          text: true,
         },
       }),
       this.databaseService.attempt.count({ where }),
@@ -220,7 +223,6 @@ export class AttemptService {
       where: { id },
       include: {
         gameMode: true,
-        text: true,
         user: {
           select: {
             id: true,
@@ -281,6 +283,9 @@ export class AttemptService {
         createdAt: attempt.createdAt.toISOString(),
         isPersonalBest,
         leaderboardPosition,
+        correctChars: attempt.correctChars,
+        totalChars: attempt.totalChars,
+        timeElapsed: attempt.timeElapsed,
       },
     };
   }
