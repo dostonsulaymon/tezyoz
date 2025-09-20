@@ -1,6 +1,6 @@
+import { ErrorResponse, SuccessResponse } from '#/shared/dto/base-response.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { SuccessResponse, ErrorResponse } from '#/shared/dto/base-response.dto';
-import { Language, GameModeType } from '@prisma/client';
+import { GameModeType, Language } from '@prisma/client';
 
 // Base DTOs
 export class GameModeDto {
@@ -168,15 +168,17 @@ export class AttemptDto {
     description: 'Number of correctly typed characters',
     example: 150,
     type: 'number',
+    required: false,
   })
-  correctChars: number;
+  correctChars?: number;
 
   @ApiProperty({
     description: 'Total number of characters in the text',
     example: 200,
     type: 'number',
+    required: false,
   })
-  totalChars: number;
+  totalChars?: number;
 
   @ApiProperty({
     description: 'Time elapsed in seconds',

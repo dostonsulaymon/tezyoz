@@ -74,9 +74,9 @@ model Attempt {
   wpm          Float
   accuracy     Float
   errors       Int?
-  correctChars Int
-  totalChars   Int
-  timeElapsed  Int
+  correctChars Int?
+  totalChars   Int?
+  timeElapsed  Int?
 
   createdAt DateTime @default(now())
 
