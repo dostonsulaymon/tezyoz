@@ -358,7 +358,7 @@ export class AttemptService {
       const personalBests = await this.getPersonalBests(user.userId, language);
 
       // Get stats by language
-      const byLanguage = await this.getStatsByLanguage(user.userId, period);
+      const byLanguage = await this.getStatsByLanguage(user.userId, period, language);
 
       // Generate progress chart data (last 30 data points)
       const progressChart = await this.generateProgressChart(user.userId, language);
@@ -800,15 +800,23 @@ export class AttemptService {
     return personalBests;
   }
 
-  private async getStatsByLanguage(userId: string, period: string) {
+  private async getStatsByLanguage(userId: string, period: string, filterLanguage?: Language) {
     const dateFilter = this.buildDateFilter(period);
+
+    // Build base filter
+    const baseFilter: any = {
+      userId,
+      ...dateFilter,
+    };
+
+    // If a specific language is requested, only return stats for that language
+    if (filterLanguage) {
+      baseFilter.language = filterLanguage;
+    }
 
     const languageStats = await this.databaseService.attempt.groupBy({
       by: ['language'],
-      where: {
-        userId,
-        ...dateFilter,
-      },
+      where: baseFilter,
       _avg: {
         wpm: true,
         accuracy: true,
