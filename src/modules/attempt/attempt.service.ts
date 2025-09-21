@@ -13,9 +13,9 @@ import { v4 as uuidv4 } from 'uuid';
 export class AttemptService {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async create(createAttemptDto: CreateAttemptDto, user?: JWTPayloadForUser) {
+  async create(createAttemptDto: CreateAttemptDto, userId?: string) {
     // Validate that either user is authenticated or username is provided for guests
-    if (!user && !createAttemptDto.username) {
+    if (!createAttemptDto.userId && !createAttemptDto.username) {
       throw new BadRequestException('Username is required for guest users.');
     }
 
@@ -34,9 +34,9 @@ export class AttemptService {
 
     // Get username for display
     let displayUsername: string | undefined;
-    if (user) {
+    if (userId) {
       const userRecord = await this.databaseService.user.findUnique({
-        where: { id: user.userId },
+        where: { id: userId },
         select: { username: true },
       });
       displayUsername = userRecord?.username || undefined;
@@ -47,7 +47,7 @@ export class AttemptService {
     // Create the attempt
     const attempt = await this.databaseService.attempt.create({
       data: {
-        userId: user?.userId || null,
+        userId: userId || null,
         language: createAttemptDto.language,
         gameModeId: createAttemptDto.gameModeId,
         wpm: createAttemptDto.wpm,
@@ -71,10 +71,10 @@ export class AttemptService {
 
     // Check if this is a personal best (only for authenticated users)
     let isPersonalBest = { wpm: false, accuracy: false };
-    if (user) {
+    if (userId) {
       isPersonalBest = await this.checkPersonalBest(
         attempt.id,
-        user.userId,
+        userId,
         createAttemptDto.gameModeId,
         createAttemptDto.language,
         createAttemptDto.wpm,

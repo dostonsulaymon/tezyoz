@@ -14,6 +14,16 @@ export class CreateAttemptDto {
   language: Language;
 
   @ApiProperty({
+    description: 'User  ID',
+    example: '507f1f77bcf86cd799439011',
+    type: 'string',
+  })
+  @IsOptional()
+  @IsString({ message: 'User  ID must be a string.' })
+  userId: string;
+
+
+  @ApiProperty({
     description: 'Game mode ID',
     example: '507f1f77bcf86cd799439011',
     type: 'string',
