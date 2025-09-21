@@ -44,6 +44,7 @@ export class AttemptController {
         value: {
           language: Language.ENGLISH,
           gameModeId: '507f1f77bcf86cd799439012',
+          userId: '507f1f77bcf86cd799439012',
           wpm: 65.5,
           accuracy: 96.8,
           errors: 2,
