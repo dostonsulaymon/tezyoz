@@ -8,12 +8,16 @@ import { StartSessionDto } from './dto/request/start-session.dto';
 import { JWTPayloadForUser } from '#/modules/auth/types';
 import { Language, GameModeType } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
+import logger from '#/shared/utils/logger';
 
 @Injectable()
 export class AttemptService {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(private readonly databaseService: DatabaseService) {
+  }
 
-  async create(createAttemptDto: CreateAttemptDto, userId?: string) {
+  async create(createAttemptDto: CreateAttemptDto) {
+    const userId = createAttemptDto.userId;
+
     // Validate that either user is authenticated or username is provided for guests
     if (!createAttemptDto.userId && !createAttemptDto.username) {
       throw new BadRequestException('Username is required for guest users.');
@@ -31,6 +35,9 @@ export class AttemptService {
     if (!gameMode) {
       throw new NotFoundException(`Game mode with ID "${createAttemptDto.gameModeId}" not found.`);
     }
+
+    logger.warn(`Request body is: ${JSON.stringify(createAttemptDto)}`);
+    logger.warn(`User id is ${createAttemptDto.userId}`);
 
     // Get username for display
     let displayUsername: string | undefined;
@@ -191,7 +198,7 @@ export class AttemptService {
       // Get personal bests for this user and game modes
       const personalBests = await this.getUserPersonalBests(
         user.userId,
-        attempts.map(a => ({ gameModeId: a.gameModeId, language: a.language }))
+        attempts.map(a => ({ gameModeId: a.gameModeId, language: a.language })),
       );
 
       // Add personal best info to attempts

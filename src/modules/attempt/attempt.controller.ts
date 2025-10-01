@@ -27,7 +27,8 @@ import { InternalServerErrorResponse } from '#/modules/text/dto/response/text-re
 @ApiTags('Attempt Management')
 @Controller('attempt')
 export class AttemptController {
-  constructor(private readonly attemptService: AttemptService) {}
+  constructor(private readonly attemptService: AttemptService) {
+  }
 
   @Post()
   @UseGuards(OptionalAuthGuard)
@@ -89,8 +90,8 @@ export class AttemptController {
     description: 'Internal server error',
     type: AttemptInternalServerErrorResponse,
   })
-  async create(@Body() createAttemptDto: CreateAttemptDto, @Request() req: AuthRequest) {
-    return await this.attemptService.create(createAttemptDto, req.user);
+  async create(@Body() createAttemptDto: CreateAttemptDto) {
+    return await this.attemptService.create(createAttemptDto);
   }
 
   @Get()
