@@ -87,6 +87,7 @@ enum Language {
   UZBEK
   RUSSIAN
   ENGLISH
+  KRILL
 }
 
 enum GameModeType {
